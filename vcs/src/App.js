@@ -14,8 +14,9 @@ function App() {
        <Navbar/>
       <header >
        
-        <Login/>
+        <Repository/>
       </header>
+      
     </div>
     </Router>
   );
