@@ -14,7 +14,7 @@ function App() {
        <Navbar/>
       <header >
        
-        <Repository/>
+       
       </header>
       
     </div>

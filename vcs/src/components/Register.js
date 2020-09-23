@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useCallback } from "react";
+import { withRouter } from "react-router";
+import app from "../base";
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -35,8 +37,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Register() {
+const SignUp = ({ history }) => {
+
   const classes = useStyles();
+  const handleSignUp = useCallback(async event => {
+    event.preventDefault();
+    const { email, password } = event.target.elements;
+    try {
+      await app
+        .auth()
+        .createUserWithEmailAndPassword(email.value, password.value);
+      history.push("/");
+    } catch (error) {
+      alert(error);
+    }
+  }, [history]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -48,7 +63,7 @@ export default function Register() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSignUp}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -121,3 +136,5 @@ export default function Register() {
     </Container>
   );
 }
+
+export default withRouter(SignUp);

@@ -1,221 +1,85 @@
-import React, { Component } from "react";
-import UploadService from "../services/upload-files.service.js ";
+import React, {Component} from 'react';
+import {storage} from '../base';
+import RepoContent from './Repocontents'
 
-export default class RepositoryPage extends Component {
+import Paper from '@material-ui/core/Paper';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import TextField from '@material-ui/core/TextField';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import LinkM from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+
+class ImageUpload extends Component {
   constructor(props) {
     super(props);
-    this.selectFile = this.selectFile.bind(this);
-    this.upload = this.upload.bind(this);
-
     this.state = {
-      selectedFiles: undefined,
-      currentFile: undefined,
-      progress: 0,
-      message: "",
-
-      fileInfos: [],
-    };
+      image: null,
+      url: '',
+      progress: 0
+    }
+    this.handleChange = this
+      .handleChange
+      .bind(this);
+      this.handleUpload = this.handleUpload.bind(this);
   }
-
-  componentDidMount() {
-    UploadService.getFiles().then((response) => {
-      this.setState({
-        fileInfos: response.data,
-      });
+  handleChange = e => {
+    if (e.target.files[0]) {
+      const image = e.target.files[0];
+      this.setState(() => ({image}));
+      console.log(e.target.files[0])
+    }
+  }
+  handleUpload = () => {
+      const {image} = this.state;
+      const uploadTask = storage.ref(`images/${image.name}`).put(image);
+      uploadTask.on('state_changed', 
+      (snapshot) => {
+        // progrss function ....
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        this.setState({progress});
+      }, 
+      (error) => {
+           // error function ....
+        console.log(error);
+      }, 
+    () => {
+        // complete function ....
+        storage.ref('images').child(image.name).getDownloadURL().then(url => {
+            console.log(url);
+            this.setState({url});
+        })
     });
   }
-
-  selectFile(event) {
-    this.setState({
-      selectedFiles: event.target.files,
-    });
-  }
-
-  upload() {
-    let currentFile = this.state.selectedFiles[0];
-
-    this.setState({
-      progress: 0,
-      currentFile: currentFile,
-    });
-
-    UploadService.upload(currentFile, (event) => {
-      this.setState({
-        progress: Math.round((100 * event.loaded) / event.total),
-      });
-    })
-      .then((response) => {
-        this.setState({
-          message: response.data.message,
-        });
-        return UploadService.getFiles();
-      })
-      .then((files) => {
-        this.setState({
-          fileInfos: files.data,
-        });
-      })
-      .catch(() => {
-        this.setState({
-          progress: 0,
-          message: "Could not upload the file!",
-          currentFile: undefined,
-        });
-      });
-
-    this.setState({
-      selectedFiles: undefined,
-    });
-  }
-
+  
   render() {
-    const {
-      selectedFiles,
-      currentFile,
-      progress,
-      message,
-      fileInfos,
-    } = this.state;
-
+    
     return (
-      <div>
-        {currentFile && (
-          <div className="progress">
-            <div
-              className="progress-bar progress-bar-info progress-bar-striped"
-              role="progressbar"
-              aria-valuenow={progress}
-              aria-valuemin="0"
-              aria-valuemax="100"
-              style={{ width: progress + "%" }}
-            >
-              {progress}%
-            </div>
-          </div>
-        )}
+      <div  >
+        
+        
 
-        <label className="btn btn-default">
-          <input type="file" onChange={this.selectFile} />
-        </label>
-
-        <button
-          className="btn btn-success"
-          disabled={!selectedFiles}
-          onClick={this.upload}
-        >
-          Upload
-        </button>
-
-        <div className="alert alert-light" role="alert">
-          {message}
-        </div>
-
-        <div className="card">
-          <div className="card-header">List of Files</div>
-          <ul className="list-group list-group-flush">
-            {fileInfos &&
-              fileInfos.map((file, index) => (
-                <li className="list-group-item" key={index}>
-                  <a href={file.url}>{file.name}</a>
-                </li>
-              ))}
-          </ul>
-        </div>
+   
+      <progress value={this.state.progress} max="100"/>
+      <br/>
+        <input type="file" onChange={this.handleChange} style={{color:"brown"}}/>
+        <button onClick={this.handleUpload}>Upload</button>
+        <br/>
+        <img src={this.state.url || 'http://via.placeholder.com/400x300'} alt="Uploaded images" height="300" width="400" style ={{position:"relative", alignContent:"flex-end"}}/>
+        
       </div>
-    );
+
+
+
+    )
   }
 }
 
-
-
-/*import axios from 'axios'; 
-
-import React,{Component} from 'react'; 
-
-class RepositoryPage extends Component { 
-
-	state = { 
-
-	// Initially, no file is selected 
-	selectedFile: null
-	}; 
-	
-	// On file select (from the pop up) 
-	onFileChange = event => { 
-	
-	// Update the state 
-	this.setState({ selectedFile: event.target.files[0] }); 
-	
-	}; 
-	
-	// On file upload (click the upload button) 
-	onFileUpload = () => { 
-	
-	// Create an object of formData 
-	const formData = new FormData(); 
-	
-	// Update the formData object 
-	formData.append( 
-		"myFile", 
-		this.state.selectedFile, 
-		this.state.selectedFile.name 
-	); 
-	
-	// Details of the uploaded file 
-	console.log(this.state.selectedFile); 
-	
-	// Request made to the backend api 
-	// Send formData object 
-	axios.post("api/uploadfile", formData); 
-	}; 
-	
-	// File content to be displayed after 
-	// file upload is complete 
-	fileData = () => { 
-	
-	if (this.state.selectedFile) { 
-		
-		return ( 
-		<div> 
-			<h2>File Details:</h2> 
-			<p>File Name: {this.state.selectedFile.name}</p> 
-			<p>File Type: {this.state.selectedFile.type}</p> 
-			<p> 
-			Last Modified:{" "} 
-			{this.state.selectedFile.lastModifiedDate.toDateString()} 
-			</p> 
-		</div> 
-		); 
-	} else { 
-		return ( 
-		<div> 
-			<br /> 
-			<h4>Choose before Pressing the Upload button</h4> 
-		</div> 
-		); 
-	} 
-	}; 
-	
-	render() { 
-	
-	return ( 
-		<div> 
-			 
-			<h3> 
-			Upload  File 
-			</h3> 
-			<div> 
-				<input type="file" onChange={this.onFileChange} /> 
-				<button onClick={this.onFileUpload}> 
-				Upload
-				</button> 
-			</div> 
-		{this.fileData()} 
-		</div> 
-	); 
-	} 
-} 
-
-export default RepositoryPage; 
-
-*/
+export default ImageUpload;

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useCallback, useContext } from "react";
+import { withRouter, Redirect } from "react-router";
+import app from "../base.js";
+import { AuthContext } from "../Auth";
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -45,8 +48,30 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function Login() {
+const Login = ({ history }) =>  {
   const classes = useStyles();
+
+  const handleLogin = useCallback(
+    async event => {
+      event.preventDefault();
+      const { email, password } = event.target.elements;
+      try {
+        await app
+          .auth()
+          .signInWithEmailAndPassword(email.value, password.value);
+        history.push("/");
+      } catch (error) {
+        alert(error);
+      }
+    },
+    [history]
+  );
+
+  const { currentUser } = useContext(AuthContext);
+
+  if (currentUser) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -58,7 +83,7 @@ export default function Login() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleLogin} noValidate>
           <TextField
             variant="outlined"
             margin="normal"
@@ -85,7 +110,7 @@ export default function Login() {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
-          <Link to="/repository"><Button
+          <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -93,7 +118,7 @@ export default function Login() {
             className={classes.submit}
           >
             Sign In
-          </Button></Link>
+          </Button>
           <Grid container>
             <Grid item xs>
               <LinkM href="#" variant="body2">
@@ -111,8 +136,59 @@ export default function Login() {
       <Box mt={8}>
         
       </Box>
-      <Route path="/repository" component={Repository}></Route>
+     
     </Container>
    
   );
 }
+
+export default withRouter(Login);
+
+/*import React, { useCallback, useContext } from "react";
+import { withRouter, Redirect } from "react-router";
+import app from "../base.js";
+import { AuthContext } from "../Auth.js";
+
+const Login = ({ history }) => {
+  const handleLogin = useCallback(
+    async event => {
+      event.preventDefault();
+      const { email, password } = event.target.elements;
+      try {
+        await app
+          .auth()
+          .signInWithEmailAndPassword(email.value, password.value);
+        history.push("/");
+      } catch (error) {
+        alert(error);
+      }
+    },
+    [history]
+  );
+
+  const { currentUser } = useContext(AuthContext);
+
+  if (currentUser) {
+    return <Redirect to="/" />;
+  }
+
+  return (
+    <div>
+      <h1>Log in</h1>
+      <form onSubmit={handleLogin}>
+        <label>
+          Email
+          <input name="email" type="email" placeholder="Email" />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" placeholder="Password" />
+        </label>
+        <button type="submit">Log in</button>
+      </form>
+    </div>
+  );
+};
+
+export default withRouter(Login);
+*/

@@ -14,10 +14,15 @@ import {
 } from "react-router-dom";
 import Login from './Login';
 import Register from './Register'
+import Repo from './RepositoryPage'
+
+import { AuthProvider } from "../Auth";
+import PrivateRoute from "../PrivateRoute";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    color: 'black'
+    color: 'black',
+    
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -40,16 +45,24 @@ export default function ButtonAppBar() {
           <Typography variant="h6" className={classes.title}>
             Version Control Website
           </Typography>
-          <Link to ="/login"><Button color="inherit">Login</Button>
+          
+          <Link to ="/login"><Button color="white">Login</Button>
           </Link>
 
-          <Link to ="/register"><Button color="inherit">Register</Button>
+          <Link to ="/register"><Button color="white">Register</Button>
           </Link>
         </Toolbar>
       </AppBar>
-
-      <Route path="/login" component={Login}></Route>
-      <Route path="/register" component={Register}></Route>
+      <AuthProvider>
+      <Router>
+        <div>
+          <Route exact path="/" component={Repo} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
+        </div>
+      </Router>
+    </AuthProvider>
+      
     </div>
   );
 }
