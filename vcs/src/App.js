@@ -7,7 +7,7 @@ import Login from './components/Login'
 import Repository from './components/RepositoryPage'
 import { BrowserRouter as Router } from 'react-router-dom';
 import ProfilePage from'./components/ProfilePage'
-import ListingUploads from './components/ListUploads'
+import ListingUploads from './components/Fileviewer'
 import { PictureAsPdf } from '@material-ui/icons';
 
 function App() {

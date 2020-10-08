@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {storage} from '../base';
 import RepoContent from './Repocontents'
-
+import logger from 'logging-library';
+import FileViewer from 'react-file-viewer';
+import { CustomErrorComponent } from 'custom-error';
 import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -18,6 +20,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState } from 'react'; 
 import { Document, Page,pdfjs } from 'react-pdf'; 
+
+
 
 class ImageUpload extends Component {
   constructor(props) {
@@ -100,12 +104,10 @@ class ImageUpload extends Component {
         <input type="file" onChange={this.handleChange} style={{color:"brown"}}/>
         <button onClick={this.handleUpload}>Upload</button>
         <br/>
-        <img src={this.state.url || 'http://via.placeholder.com/400x300'} alt="Uploaded images" height="300" width="400" style ={{position:"relative", alignContent:"flex-end"}}/>
-  
-		
+        
 		<Button onClick={this._onButtonClick}>Button</Button>
         {this.state.showComponent ?
-           <Test url={this.state.url||"https://firebasestorage.googleapis.com/v0/b/versio…=media&token=9f56514b-2428-49f6-aa41-9ca4d0f25b69"} /> :
+           <Test url={this.state.url} /> :
            null
         }
 		
@@ -113,7 +115,7 @@ class ImageUpload extends Component {
           onClick={this.handleFolderOpen}
           className="waves-effect waves-light btn"
         >
-          Open
+          View pdf
         </Button>
       </div>
 	  
@@ -126,12 +128,11 @@ class ImageUpload extends Component {
 
 
 
-//Child class test here
+//Child class test here View pdf
 function Test(props) { 
-		const newurl=(props);
-        const url = 
-"https://cors-anywhere.herokuapp.com/https://firebasestorage.googleapis.com/v0/b/version-control-website.appspot.com/o/images%2FSDP%20Weekly%20progress.docx%20(1).pdf?alt=media&token=8e4d4434-6711-477b-8d4c-f90537bec037"
-pdfjs.GlobalWorkerOptions.workerSrc = 
+		const url=(props);
+		console.log(url)
+        pdfjs.GlobalWorkerOptions.workerSrc = 
        `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; 
        const [numPages, setNumPages] = useState(null); 
        const [pageNumber, setPageNumber] = useState(1); 
@@ -141,7 +142,7 @@ pdfjs.GlobalWorkerOptions.workerSrc =
         
   
         
-       /*When document gets loaded successfully*/
+       /*When document gets loaded successfully Add comment close here..............(*/
        function onDocumentLoadSuccess({ numPages }) { 
         setNumPages(numPages); 
         setPageNumber(1); 
